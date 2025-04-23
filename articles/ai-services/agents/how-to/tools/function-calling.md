@@ -220,7 +220,7 @@ from user_functions import user_functions # user functions which can be found in
 # Create an Azure AI Client from a connection string, copied from your Azure AI Foundry project.
 # It should be in the format "<HostName>;<AzureSubscriptionId>;<ResourceGroup>;<HubName>"
 # Customers need to login to Azure subscription via Azure CLI and set the environment variables
-
+# The toolset parameter in create_agent does not executes toolcalls automatically during create_and_process_run or create_stream. To have behavior, call enable_auto_function_calls as per below sample.
 project_client = AIProjectClient.from_connection_string(
     credential=DefaultAzureCredential(),
     conn_str=os.environ["PROJECT_CONNECTION_STRING"],
@@ -230,6 +230,9 @@ project_client = AIProjectClient.from_connection_string(
 functions = FunctionTool(user_functions)
 toolset = ToolSet()
 toolset.add(functions)
+
+# To enable tool calls executed automatically
+project_client.agents.enable_auto_function_calls(toolset=toolset)
 
 agent = project_client.agents.create_agent(
     model="gpt-4o-mini", name="my-agent", instructions="You are a weather bot. Use the provided functions to help answer questions.", toolset=toolset
